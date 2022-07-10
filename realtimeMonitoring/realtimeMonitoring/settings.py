@@ -87,7 +87,7 @@ DATABASES = {
         'NAME': 'iot_data',
         'USER': 'dbadmin',
         'PASSWORD': 'uniandesIOT1234*',
-        'HOST': 'ec2-54-81-174-199.compute-1.amazonaws.com',
+        'HOST': 'localhost',
         'PORT': '',
     }
 }
