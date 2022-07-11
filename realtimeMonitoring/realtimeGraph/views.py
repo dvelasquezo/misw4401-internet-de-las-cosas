@@ -528,7 +528,7 @@ def get_map_json(request, **kwargs):
         selectedMeasure = Measurement.objects.filter(name=measureParam)[0]
     elif measurements.count() > 0:
         selectedMeasure = measurements[0]
-    measurements.filter()
+
     locations = Location.objects.all()
     try:
         start = datetime.fromtimestamp(
@@ -585,10 +585,12 @@ def get_map_json(request, **kwargs):
 
     return JsonResponse(data_result)
 
-
 def get_map_json_reto_capa_datos(request, **kwargs):
     data_result = {}
-
+    ciudad = request.GET.get("city", None)
+    ciudad_id = City.objects.all().filter(name=ciudad).values()[0]['id']
+    ubicacion_id = Location.objects.all().filter(city_id=ciudad_id).values()[0]['id']
+    estaciones_id = Station.objects.all().filter(location_id=ubicacion_id).values()[0]['id']
     measureParam = kwargs.get("measure", None)
     selectedMeasure = None
     measurements = Measurement.objects.all()
@@ -597,6 +599,7 @@ def get_map_json_reto_capa_datos(request, **kwargs):
         selectedMeasure = Measurement.objects.filter(name=measureParam)[0]
     elif measurements.count() > 0:
         selectedMeasure = measurements[0]
+    measurements.filter()
     try:
         start = datetime.fromtimestamp(
             float(request.GET.get("from", None)) / 1000
@@ -617,9 +620,26 @@ def get_map_json_reto_capa_datos(request, **kwargs):
         end = datetime.now()
     elif start == None:
         start = datetime.fromtimestamp(0)
-    registrosPeriodo = Data.objects.filter(time__range=[start, end])
-    top3 = registrosPeriodo.order_by('-value')[:3]
-    data_result["top3MomentosMaX"] = list(top3.values())
+    data = []
+    locations = Location.objects.filter(city_id=ciudad_id)
+    for location in locations:
+        stations = Station.objects.filter(location_id=estaciones_id)
+        locationData = Data.objects.filter(
+            station__in=stations, measurement__name=selectedMeasure.name,  time__gte=start.date(), time__lte=end.date())
+        if locationData.count() <= 0:
+            continue
+        maxVal = locationData.aggregate(
+            Max('value'))['value__max']
+        data.append({
+            'name': f'{location.city.name}, {location.state.name}, {location.country.name}',
+            'lat': location.lat,
+            'lng': location.lng,
+            'population': stations.count(),
+            'max': maxVal if maxVal != None else 0,
+        })
+
+        data_result["locations"] = [loc.str() for loc in locations]
+        data_result["data"] = data
     return JsonResponse(data_result)
 
 

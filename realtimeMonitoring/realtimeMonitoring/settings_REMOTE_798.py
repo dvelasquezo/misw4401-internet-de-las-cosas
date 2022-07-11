@@ -87,10 +87,12 @@ DATABASES = {
         'NAME': 'iot_data',
         'USER': 'dbadmin',
         'PASSWORD': 'uniandesIOT1234*',
-        'HOST': 'localhost',
+        'HOST': 'ec2-3-83-132-25.compute-1.amazonaws.com',
         'PORT': '',
     }
 }
+#postgres ec2-54-81-174-199.compute-1.amazonaws.com
+#timescale ec2-35-175-241-176.compute-1.amazonaws.com
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
