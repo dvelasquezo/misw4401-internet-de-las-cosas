@@ -589,8 +589,6 @@ def get_map_json_reto_capa_datos(request, **kwargs):
     data_result = {}
     ciudad = request.GET.get("city", None)
     ciudad_id = City.objects.all().filter(name=ciudad).values()[0]['id']
-    ubicacion_id = Location.objects.all().filter(city_id=ciudad_id).values()[0]['id']
-    estaciones_id = Station.objects.all().filter(location_id=ubicacion_id).values()[0]['id']
     measureParam = kwargs.get("measure", None)
     selectedMeasure = None
     measurements = Measurement.objects.all()
@@ -623,7 +621,7 @@ def get_map_json_reto_capa_datos(request, **kwargs):
     data = []
     locations = Location.objects.filter(city_id=ciudad_id)
     for location in locations:
-        stations = Station.objects.filter(location_id=estaciones_id)
+        stations = Station.objects.filter(location_id=location)
         locationData = Data.objects.filter(
             station__in=stations, measurement__name=selectedMeasure.name,  time__gte=start.date(), time__lte=end.date())
         if locationData.count() <= 0:
